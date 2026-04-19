@@ -1,0 +1,52 @@
+// Firestore Security Rules
+// Copy this to your Firestore console under Rules tab
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow anyone to read cached matches (public data)
+    match /cached_matches/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only server can write
+    }
+
+    // Live matches - readable by all, writable by authenticated users only
+    match /live_matches/{matchId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.keys().hasAll(['matchId', 'updatedAt']);
+    }
+
+    // User data - private to each user
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Favorites subcollection
+      match /favorites/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Settings subcollection
+      match /settings/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Public competitions data
+    match /competitions/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Teams data
+    match /teams/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Default deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
