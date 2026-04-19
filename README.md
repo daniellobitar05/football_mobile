@@ -1,6 +1,6 @@
 # fot_mob_app
 
-A new Flutter project.
+A flutter project: A football app to track your macthes live. You can see live matches, scheduled one and finished one for each day. The only thing you need to do when taking this project is to create an account on football-data.org and put your own api.
 
 ## Getting Started
 
